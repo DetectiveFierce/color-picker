@@ -1,52 +1,85 @@
 /* Color Picker Styles */
 
+/* HiDPI-aware slider styles */
 .color-slider {
     width: 100%;
-    height: 8px;
+    height: clamp(8px, 1.5vw, 12px); /* Responsive height with min/max bounds */
     -webkit-appearance: none;
     appearance: none;
     outline: none;
-    border-radius: 4px;
+    border-radius: clamp(4px, 0.75vw, 6px);
     cursor: pointer;
+    /* Ensure smooth rendering on HiDPI */
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
 }
 
 .color-slider::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
-    width: 16px;
-    height: 16px;
+    width: clamp(16px, 3vw, 24px); /* Responsive thumb size */
+    height: clamp(16px, 3vw, 24px);
     border-radius: 50%;
     background: #ffffff;
-    border: 2px solid #374151;
+    border: clamp(2px, 0.4vw, 3px) solid #374151;
     cursor: pointer;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 clamp(2px, 0.4vw, 4px) clamp(4px, 0.8vw, 8px) rgba(0, 0, 0, 0.3);
+    /* Ensure crisp rendering on HiDPI */
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
 }
 
 .color-slider::-moz-range-thumb {
-    width: 16px;
-    height: 16px;
+    width: clamp(16px, 3vw, 24px);
+    height: clamp(16px, 3vw, 24px);
     border-radius: 50%;
     background: #ffffff;
-    border: 2px solid #374151;
+    border: clamp(2px, 0.4vw, 3px) solid #374151;
     cursor: pointer;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 clamp(2px, 0.4vw, 4px) clamp(4px, 0.8vw, 8px) rgba(0, 0, 0, 0.3);
+    /* Ensure crisp rendering on HiDPI */
+    transform: translateZ(0);
+}
+
+/* HiDPI-aware track styling */
+.color-slider::-webkit-slider-track {
+    -webkit-appearance: none;
+    appearance: none;
+    height: clamp(8px, 1.5vw, 12px);
+    border-radius: clamp(4px, 0.75vw, 6px);
+    /* Ensure smooth rendering */
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+}
+
+.color-slider::-moz-range-track {
+    height: clamp(8px, 1.5vw, 12px);
+    border-radius: clamp(4px, 0.75vw, 6px);
+    /* Ensure smooth rendering */
+    transform: translateZ(0);
 }
 
 /* Color wheel canvas styles */
 .color-wheel-canvas {
     cursor: crosshair;
-    border: 1px solid #525252;
-    border-radius: 8px;
+    border: clamp(1px, 0.2vw, 2px) solid #525252;
+    border-radius: clamp(8px, 1.5vw, 12px);
+    /* Ensure crisp rendering on HiDPI */
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
 }
 
-/* Color chip styles */
+/* Color chip styles with HiDPI support */
 .color-chip {
     position: relative;
-    height: 64px;
-    border-radius: 4px;
+    height: clamp(48px, 8vw, 64px);
+    border-radius: clamp(4px, 0.75vw, 6px);
     cursor: pointer;
-    border: 2px solid #525252;
+    border: clamp(2px, 0.4vw, 3px) solid #525252;
     transition: all 0.2s ease;
+    /* Ensure crisp rendering */
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
 }
 
 .color-chip:hover {
@@ -55,7 +88,7 @@
 
 .color-chip.editing {
     border-color: #ffffff;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 clamp(4px, 0.8vw, 8px) clamp(8px, 1.5vw, 16px) rgba(0, 0, 0, 0.3);
 }
 
 .color-chip-name {
@@ -64,25 +97,31 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 12px;
+    font-size: clamp(10px, 1.8vw, 14px);
     font-weight: 500;
     text-align: center;
-    padding: 4px;
+    padding: clamp(4px, 0.8vw, 6px);
+    /* Ensure crisp text rendering */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 .color-chip-remove {
     position: absolute;
-    top: -8px;
-    right: -8px;
+    top: clamp(-8px, -1.5vw, -12px);
+    right: clamp(-8px, -1.5vw, -12px);
     background: #dc2626;
     border-radius: 50%;
-    width: 20px;
-    height: 20px;
+    width: clamp(20px, 3.5vw, 28px);
+    height: clamp(20px, 3.5vw, 28px);
     display: flex;
     align-items: center;
     justify-content: center;
     opacity: 0;
     transition: opacity 0.2s ease;
+    /* Ensure crisp rendering */
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
 }
 
 .color-chip-remove:hover {
@@ -93,30 +132,36 @@
     opacity: 1;
 }
 
-/* Color swatch styles */
+/* Color swatch styles with HiDPI support */
 .color-swatch {
-    width: 64px;
-    height: 64px;
-    border-radius: 8px;
-    border: 2px solid #525252;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    width: clamp(48px, 8vw, 64px);
+    height: clamp(48px, 8vw, 64px);
+    border-radius: clamp(6px, 1vw, 8px);
+    border: clamp(2px, 0.4vw, 3px) solid #525252;
+    box-shadow: 0 clamp(4px, 0.8vw, 8px) clamp(8px, 1.5vw, 16px) rgba(0, 0, 0, 0.3);
+    /* Ensure crisp rendering */
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
 }
 
 .color-swatch-large {
-    width: 120px;
-    height: 120px;
-    min-width: 120px;
-    border-radius: 12px;
+    width: clamp(100px, 15vw, 160px);
+    height: clamp(100px, 15vw, 160px);
+    min-width: clamp(100px, 15vw, 160px);
+    border-radius: clamp(10px, 1.5vw, 12px);
     border: 0px solid #fff;
-    box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+    box-shadow: 0 clamp(6px, 1vw, 16px) clamp(16px, 2.5vw, 32px) rgba(0,0,0,0.4);
     transition: width 0.2s, height 0.2s;
+    /* Ensure crisp rendering */
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
 }
 
 @media (min-width: 640px) {
     .color-swatch-large {
-        width: 160px;
-        height: 160px;
-        min-width: 160px;
+        width: clamp(120px, 18vw, 180px);
+        height: clamp(120px, 18vw, 180px);
+        min-width: clamp(120px, 18vw, 180px);
     }
 }
 
@@ -124,28 +169,33 @@
     width: 100%;
     height: 100%;
     display: block;
-    border-radius: 8px;
-    border: 1px solid #525252;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    border-radius: clamp(6px, 1vw, 8px);
+    border: clamp(1px, 0.2vw, 2px) solid #525252;
+    box-shadow: 0 clamp(2px, 0.4vw, 4px) clamp(8px, 1.5vw, 16px) rgba(0,0,0,0.2);
     max-width: 100%;
     box-sizing: border-box;
+    /* Ensure crisp rendering on HiDPI */
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
 }
 
 /* Responsive layout adjustments for zoomed/constrained viewports */
 @media (max-width: 1024px) {
     .color-picker-compact-layout .color-square-canvas {
         margin-top: 0;
+        height: 120px !important;
+        min-height: 120px;
     }
     
     .color-picker-compact-layout .input-hex {
-        padding: 4px 8px;
-        font-size: 11px;
+        padding: clamp(4px, 0.8vw, 8px) clamp(8px, 1.5vw, 12px);
+        font-size: clamp(10px, 1.8vw, 12px);
     }
     
     .color-picker-compact-layout .color-swatch-large {
-        width: 80px;
-        height: 80px;
-        min-width: 80px;
+        width: clamp(70px, 12vw, 90px);
+        height: clamp(70px, 12vw, 90px);
+        min-width: clamp(70px, 12vw, 90px);
     }
 }
 
@@ -155,255 +205,432 @@
     }
     
     .color-picker-compact-layout .input-hex {
-        padding: 3px 6px;
-        font-size: 10px;
+        padding: clamp(3px, 0.6vw, 6px) clamp(6px, 1.2vw, 10px);
+        font-size: clamp(9px, 1.6vw, 11px);
     }
     
     .color-picker-compact-layout .color-swatch-large {
-        width: 60px;
-        height: 60px;
-        min-width: 60px;
+        width: clamp(50px, 10vw, 70px);
+        height: clamp(50px, 10vw, 70px);
+        min-width: clamp(50px, 10vw, 70px);
     }
 }
 
 /* Compact layout specific styles */
 .color-picker-compact-layout .color-square-canvas {
     margin-top: 0;
-    border-radius: 6px;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
-    flex-shrink: 1;
+    border-radius: clamp(4px, 0.75vw, 6px);
+    box-shadow: 0 clamp(1px, 0.2vw, 2px) clamp(4px, 0.8vw, 8px) rgba(0,0,0,0.2);
     height: 100%;
     max-width: 100%;
     box-sizing: border-box;
 }
 
 .color-picker-compact-layout .input-hex {
-    padding: 3px 6px;
-    font-size: 11px;
-    border-radius: 3px;
-    min-width: 150px;
+    padding: clamp(3px, 0.6vw, 6px) clamp(6px, 1.2vw, 10px);
+    font-size: clamp(10px, 1.8vw, 12px);
+    border-radius: clamp(3px, 0.5vw, 4px);
+    min-width: clamp(120px, 20vw, 180px);
 }
 
 .color-picker-compact-layout .color-swatch-large {
-    border-radius: 6px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    border-radius: clamp(4px, 0.75vw, 6px);
+    box-shadow: 0 clamp(2px, 0.4vw, 4px) clamp(6px, 1vw, 12px) rgba(0,0,0,0.3);
 }
 
 /* Ensure proper spacing in compact layout */
 .color-picker-compact-layout .flex.flex-row {
-    gap: 8px;
+    gap: clamp(6px, 1vw, 12px);
     align-items: flex-start;
 }
 
 /* Ensure color square container respects resizable menu bounds */
 .color-picker-compact-layout .flex-1 {
     min-width: 0;
-    max-width: 100%;
-    overflow: hidden;
 }
 
 .color-picker-compact-layout .flex-shrink-0 {
     flex-shrink: 0;
 }
 
-/* Button styles */
+/* Additional spacing for compact layout to prevent overlap */
+.color-picker-compact-layout .space-y-3 > * + * {
+    margin-top: clamp(12px, 2vw, 16px);
+}
+
+/* Ensure color square container has proper dimensions in compact mode */
+.color-picker-compact-layout .w-full[style*="height: 120px"] {
+    min-height: 120px;
+    height: 120px;
+}
+
+.color-picker-compact-layout .w-full[style*="height: 120px"] .color-square-canvas {
+    height: 120px;
+    min-height: 120px;
+}
+
+/* Button styles with HiDPI support */
 .btn-primary {
-    background: #d97706;
+    background: #3b82f6;
     color: white;
-    padding: 8px 16px;
-    border-radius: 4px;
+    padding: clamp(8px, 1.5vw, 12px) clamp(16px, 3vw, 24px);
+    border-radius: clamp(6px, 1vw, 8px);
+    font-size: clamp(14px, 2.5vw, 16px);
+    font-weight: 500;
     border: none;
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: background-color 0.2s ease;
+    transition: all 0.2s ease;
+    /* Ensure crisp rendering */
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
 }
 
 .btn-primary:hover {
-    background: #b45309;
+    background: #2563eb;
 }
 
 .btn-success {
-    background: #059669;
+    background: #10b981;
     color: white;
-    padding: 8px 16px;
-    border-radius: 4px;
+    padding: clamp(8px, 1.5vw, 12px) clamp(16px, 3vw, 24px);
+    border-radius: clamp(6px, 1vw, 8px);
+    font-size: clamp(14px, 2.5vw, 16px);
+    font-weight: 500;
     border: none;
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: background-color 0.2s ease;
+    transition: all 0.2s ease;
+    /* Ensure crisp rendering */
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
 }
 
 .btn-success:hover {
-    background: #047857;
+    background: #059669;
 }
 
 .btn-danger {
-    background: #dc2626;
+    background: #ef4444;
     color: white;
-    padding: 8px 16px;
-    border-radius: 4px;
+    padding: clamp(8px, 1.5vw, 12px) clamp(16px, 3vw, 24px);
+    border-radius: clamp(6px, 1vw, 8px);
+    font-size: clamp(14px, 2.5vw, 16px);
+    font-weight: 500;
     border: none;
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: background-color 0.2s ease;
+    transition: all 0.2s ease;
+    /* Ensure crisp rendering */
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
 }
 
 .btn-danger:hover {
-    background: #b91c1c;
+    background: #dc2626;
 }
 
 .btn-secondary {
-    background: #525252;
+    background: #6b7280;
     color: white;
-    padding: 8px 16px;
-    border-radius: 4px;
+    padding: clamp(8px, 1.5vw, 12px) clamp(16px, 3vw, 24px);
+    border-radius: clamp(6px, 1vw, 8px);
+    font-size: clamp(14px, 2.5vw, 16px);
+    font-weight: 500;
     border: none;
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: background-color 0.2s ease;
+    transition: all 0.2s ease;
+    /* Ensure crisp rendering */
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
 }
 
 .btn-secondary:hover {
-    background: #404040;
+    background: #4b5563;
 }
 
 .btn-purple {
-    background: #7c3aed;
+    background: #8b5cf6;
     color: white;
-    padding: 8px 16px;
-    border-radius: 4px;
+    padding: clamp(8px, 1.5vw, 12px) clamp(16px, 3vw, 24px);
+    border-radius: clamp(6px, 1vw, 8px);
+    font-size: clamp(14px, 2.5vw, 16px);
+    font-weight: 500;
     border: none;
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: background-color 0.2s ease;
+    transition: all 0.2s ease;
+    /* Ensure crisp rendering */
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
 }
 
 .btn-purple:hover {
-    background: #6d28d9;
+    background: #7c3aed;
 }
 
-/* Small button variants */
 .btn-sm {
-    padding: 4px 12px;
-    font-size: 14px;
+    padding: clamp(4px, 0.8vw, 8px) clamp(8px, 1.5vw, 16px);
+    font-size: clamp(12px, 2vw, 14px);
 }
 
-/* Input styles */
+/* Input styles with HiDPI support */
 .input-hex {
     background: #262626;
-    border: 1px solid #525252;
-    border-radius: 4px;
-    padding: 6px 10px;
-    color: #f5f5f5;
-    width: 100%;
-    font-family: monospace;
-    font-size: 12px;
-    box-sizing: border-box;
-    outline: none;
-    transition: border-color 0.2s ease;
+    border: clamp(1px, 0.2vw, 2px) solid #525252;
+    border-radius: clamp(4px, 0.75vw, 6px);
+    color: #f3f4f6;
+    padding: clamp(6px, 1.2vw, 10px) clamp(12px, 2vw, 16px);
+    font-size: clamp(14px, 2.5vw, 16px);
+    transition: all 0.2s ease;
+    /* Ensure crisp text rendering */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 .input-hex:focus {
-    border-color: #d97706;
-    box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.2);
+    border-color: #3b82f6;
+    outline: none;
+    box-shadow: 0 0 0 clamp(2px, 0.4vw, 3px) rgba(59, 130, 246, 0.3);
 }
 
 @media (min-width: 640px) {
     .input-hex {
-        padding: 8px 12px;
-        font-size: 14px;
+        padding: clamp(8px, 1.5vw, 12px) clamp(16px, 3vw, 24px);
+        font-size: clamp(16px, 2.8vw, 18px);
     }
 }
 
 .input-palette-name {
     background: #262626;
-    border: 1px solid #525252;
-    border-radius: 4px;
-    padding: 8px 12px;
-    color: #f5f5f5;
+    border: clamp(1px, 0.2vw, 2px) solid #525252;
+    border-radius: clamp(4px, 0.75vw, 6px);
+    color: #f3f4f6;
+    padding: clamp(6px, 1.2vw, 10px) clamp(12px, 2vw, 16px);
+    font-size: clamp(14px, 2.5vw, 16px);
+    transition: all 0.2s ease;
 }
 
 .input-palette-name:focus {
+    border-color: #3b82f6;
     outline: none;
-    border-color: #d97706;
+    box-shadow: 0 0 0 clamp(2px, 0.4vw, 3px) rgba(59, 130, 246, 0.3);
 }
 
-/* Slider label styles */
+/* Slider label styles with HiDPI support */
 .slider-label {
-    font-size: 14px;
-    font-weight: 500;
-    width: 16px;
+    font-size: clamp(12px, 2vw, 14px);
+    font-weight: 600;
+    min-width: clamp(16px, 3vw, 24px);
+    text-align: center;
+    /* Ensure crisp text rendering */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 .slider-label.red {
-    color: #f87171;
+    color: #ef4444;
 }
 
 .slider-label.green {
-    color: #4ade80;
+    color: #10b981;
 }
 
 .slider-label.blue {
-    color: #60a5fa;
+    color: #3b82f6;
 }
 
 .slider-label.yellow {
-    color: #facc15;
+    color: #f59e0b;
 }
 
 .slider-label.purple {
-    color: #c084fc;
+    color: #8b5cf6;
 }
 
 .slider-label.orange {
-    color: #fb923c;
+    color: #f97316;
 }
 
 .slider-value {
-    color: #d6d6d6;
-    width: 32px;
-    font-size: 14px;
-    font-family: monospace;
-}
-
-/* Color name display in picker */
-.color-name-display {
-    font-size: 2rem;         /* Adjust font size here */
-    font-weight: 700;        /* Bold */
+    font-size: clamp(10px, 1.8vw, 12px);
+    font-weight: 500;
+    color: #9ca3af;
+    min-width: clamp(32px, 6vw, 48px);
     text-align: center;
-    cursor: pointer;
-    padding: 0.25em 0;       /* Adjust vertical/horizontal padding here */
-    color: #d6d6d6;          /* Amber-400, adjust color here */
-    background: none;
-    border: none;
-    outline: none;
-    transition: text-decoration 0.2s, color 0.2s;
-    text-decoration: underline dotted #C2982B 2px; /* Amber-600 underline */
-    border-radius: 4px;
-}
-.color-name-display:hover, .color-name-display:focus {
-    text-decoration: underline solid #C2982B 2px;
-    color: #707070; /* Slightly darker on hover, adjust here */
+    /* Ensure crisp text rendering */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
-/* Drag and drop styles */
+/* Color name display with HiDPI support */
+.color-name-display {
+    font-size: clamp(16px, 3vw, 24px);
+    font-weight: 600;
+    color: #f3f4f6;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    /* Ensure crisp text rendering */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.color-name-display:hover, .color-name-display:focus {
+    color: #ffffff;
+    text-shadow: 0 0 clamp(8px, 1.5vw, 16px) rgba(255, 255, 255, 0.3);
+}
+
+/* Drag and drop styles with HiDPI support */
 .color-chip-dragging {
     opacity: 0.5;
-    transform: rotate(5deg);
+    transform: rotate(5deg) scale(1.05);
+    z-index: 1000;
 }
 
 .color-chip-drop-target {
-    border-color: #fbbf24 !important; /* amber-400 */
-    box-shadow: 0 0 10px rgba(251, 191, 36, 0.5) !important;
+    border-color: #f59e0b;
+    box-shadow: 0 0 clamp(8px, 1.5vw, 16px) rgba(245, 158, 11, 0.5);
+}
+
+/* HiDPI-specific improvements */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    /* Ensure even crisper rendering on HiDPI displays */
+    .color-slider,
+    .color-chip,
+    .color-swatch,
+    .color-swatch-large,
+    .btn-primary,
+    .btn-success,
+    .btn-danger,
+    .btn-secondary,
+    .btn-purple,
+    .input-hex,
+    .input-palette-name {
+        -webkit-transform: translateZ(0);
+        transform: translateZ(0);
+    }
+    
+    /* Improve text rendering on HiDPI */
+    .color-chip-name,
+    .slider-label,
+    .slider-value,
+    .color-name-display,
+    .input-hex,
+    .input-palette-name {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-rendering: optimizeLegibility;
+    }
+}
+
+/* Touch-friendly improvements for high-DPI touch displays */
+@media (pointer: coarse) {
+    .color-slider::-webkit-slider-thumb {
+        width: clamp(24px, 4.5vw, 32px);
+        height: clamp(24px, 4.5vw, 32px);
+    }
+    
+    .color-slider::-moz-range-thumb {
+        width: clamp(24px, 4.5vw, 32px);
+        height: clamp(24px, 4.5vw, 32px);
+    }
+    
+    .color-chip-remove {
+        width: clamp(28px, 5vw, 36px);
+        height: clamp(28px, 5vw, 36px);
+    }
+    
+    .btn-primary,
+    .btn-success,
+    .btn-danger,
+    .btn-secondary,
+    .btn-purple {
+        min-height: clamp(44px, 8vw, 56px);
+        min-width: clamp(44px, 8vw, 56px);
+    }
+}
+
+/* Enhanced focus states for accessibility */
+.color-slider:focus,
+.input-hex:focus,
+.input-palette-name:focus,
+.btn-primary:focus,
+.btn-success:focus,
+.btn-danger:focus,
+.btn-secondary:focus,
+.btn-purple:focus {
+    outline: clamp(2px, 0.4vw, 3px) solid #3b82f6;
+    outline-offset: clamp(2px, 0.4vw, 3px);
+}
+
+/* Improved contrast for better accessibility */
+@media (prefers-contrast: high) {
+    .color-slider::-webkit-slider-thumb,
+    .color-slider::-moz-range-thumb {
+        border-width: clamp(3px, 0.6vw, 4px);
+        border-color: #000000;
+    }
+    
+    .color-chip,
+    .color-swatch,
+    .color-swatch-large {
+        border-width: clamp(3px, 0.6vw, 4px);
+        border-color: #000000;
+    }
+    
+    .input-hex,
+    .input-palette-name {
+        border-width: clamp(2px, 0.4vw, 3px);
+        border-color: #000000;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .color-slider,
+    .color-chip,
+    .color-swatch,
+    .color-swatch-large,
+    .btn-primary,
+    .btn-success,
+    .btn-danger,
+    .btn-secondary,
+    .btn-purple,
+    .input-hex,
+    .input-palette-name,
+    .color-name-display {
+        transition: none;
+    }
+    
+    .color-chip-dragging {
+        transform: none;
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .slider-label.red { color: #ff0000; }
+    .slider-label.green { color: #00ff00; }
+    .slider-label.blue { color: #0000ff; }
+    .slider-label.yellow { color: #ffff00; }
+    .slider-label.purple { color: #800080; }
+    .slider-label.orange { color: #ffa500; }
+}
+
+/* Palette creation button styles */
+.color-cycle-border:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    animation: none;
+    border-color: #525252 !important;
+    background: #404040 !important;
+}
+
+.color-cycle-border:not(:disabled) {
+    background: linear-gradient(45deg, #ff0000, #ff8000, #ffff00, #00ff00, #0080ff, #8000ff, #ff0000);
+    background-size: 400% 400%;
+    animation: colorCycle 3s linear infinite;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+}
+
+.color-cycle-border:not(:disabled):hover {
     transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }

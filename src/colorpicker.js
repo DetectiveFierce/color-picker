@@ -38,6 +38,49 @@ const colorCycleStyles = `
     100% { border-color: #ff0000; box-shadow: 0 0 20px rgba(255, 0, 0, 0.6); } /* Back to red */
   }
   
+  @keyframes generateButtonFluid {
+    0% { 
+      background-color: #7c3aed;
+      box-shadow: 0 4px 16px rgba(124, 58, 237, 0.4);
+    }
+    15% { 
+      background-color: #8b5cf6;
+      box-shadow: 0 4px 16px rgba(139, 92, 246, 0.4);
+    }
+    30% { 
+      background-color: #a855f7;
+      box-shadow: 0 4px 16px rgba(168, 85, 247, 0.4);
+    }
+    45% { 
+      background-color: #6366f1;
+      box-shadow: 0 4px 16px rgba(99, 102, 241, 0.4);
+    }
+    55% { 
+      background-color: #84cc16;
+      box-shadow: 0 4px 16px rgba(132, 204, 22, 0.4);
+    }
+    65% { 
+      background-color: #ea580c;
+      box-shadow: 0 4px 16px rgba(234, 88, 12, 0.4);
+    }
+    75% { 
+      background-color: #6366f1;
+      box-shadow: 0 4px 16px rgba(99, 102, 241, 0.4);
+    }
+    85% { 
+      background-color: #a855f7;
+      box-shadow: 0 4px 16px rgba(168, 85, 247, 0.4);
+    }
+    95% { 
+      background-color: #8b5cf6;
+      box-shadow: 0 4px 16px rgba(139, 92, 246, 0.4);
+    }
+    100% { 
+      background-color: #7c3aed;
+      box-shadow: 0 4px 16px rgba(124, 58, 237, 0.4);
+    }
+  }
+  
   .color-cycle-text {
     animation: colorCycle 3s linear infinite;
     font-weight: bold;
@@ -146,6 +189,16 @@ const colorCycleStyles = `
     -moz-user-select: none;
     -ms-user-select: none;
   }
+  
+  /* Menu elements with fluid color animation */
+  .menu-vertical-bar {
+    animation: generateButtonFluid 20s ease-in-out infinite;
+    opacity: 0.3;
+  }
+  
+  .menu-bullet {
+    animation: generateButtonFluid 20s ease-in-out infinite;
+  }
 `;
 
 // Inject the styles into the document head
@@ -154,6 +207,37 @@ if (typeof document !== 'undefined') {
   styleElement.textContent = colorCycleStyles;
   document.head.appendChild(styleElement);
 }
+
+// Custom hook to get responsive icon size based on DPR
+const useResponsiveIconSize = (baseSize = 16) => {
+  const [iconSize, setIconSize] = useState(baseSize);
+
+  useEffect(() => {
+    const updateIconSize = () => {
+      const dpr = window.devicePixelRatio || 1;
+      const responsiveSize = Math.max(baseSize, Math.min(baseSize * 1.5, baseSize * dpr * 0.8));
+      setIconSize(Math.round(responsiveSize));
+    };
+
+    updateIconSize();
+    window.addEventListener('resize', updateIconSize);
+    
+    if (window.matchMedia) {
+      const mediaQuery = window.matchMedia('(resolution: 1dppx)');
+      mediaQuery.addEventListener('change', updateIconSize);
+    }
+
+    return () => {
+      window.removeEventListener('resize', updateIconSize);
+      if (window.matchMedia) {
+        const mediaQuery = window.matchMedia('(resolution: 1dppx)');
+        mediaQuery.removeEventListener('change', updateIconSize);
+      }
+    };
+  }, [baseSize]);
+
+  return iconSize;
+};
 
 // Custom hook to measure text and determine if it fits
 const useTextFit = (text, containerRef) => {
@@ -272,6 +356,7 @@ const FittedText = ({ text, color, className = "" }) => {
 // Component for individual menu items with sequential animation
 const MenuItem = ({ icon: Icon, text, onClick, isVisible, onAnimationComplete, index }) => {
   const [hasAnimated, setHasAnimated] = useState(false);
+  const iconSize = useResponsiveIconSize(14);
 
   useEffect(() => {
     if (isVisible && !hasAnimated) {
@@ -295,10 +380,10 @@ const MenuItem = ({ icon: Icon, text, onClick, isVisible, onAnimationComplete, i
         className="px-3 py-2 bg-neutral-800/90 backdrop-blur-sm border border-neutral-600 rounded-lg text-sm text-neutral-100 hover:bg-neutral-700/90 transition-all duration-200 hover:scale-105 flex items-center space-x-2 menu-item-reveal"
         style={{ transform: 'translateX(-40px)' }}
       >
-        <Icon size={14} />
+        <Icon size={iconSize} />
         <span>{text}</span>
       </button>
-      <div className="w-3 h-3 bg-purple-500 rounded-full shadow-lg" style={{ position: 'absolute', right: '28px', transform: 'translateX(50%)' }}></div>
+      <div className="w-3 h-3 rounded-full shadow-lg menu-bullet" style={{ position: 'absolute', right: '28px', transform: 'translateX(50%)' }}></div>
     </div>
   );
 };
@@ -320,6 +405,12 @@ const ColorPickerApp = () => {
   const [useCompactLayout, setUseCompactLayout] = useState(false);
   const [rgbValues, setRgbValues] = useState({ r: 255, g: 0, b: 0 });
   const [normalizedRgbValues, setNormalizedRgbValues] = useState({ r: 1.000, g: 0.000, b: 0.000 });
+  
+  // Responsive icon sizes for HiDPI
+  const smallIconSize = useResponsiveIconSize(14);
+  const mediumIconSize = useResponsiveIconSize(16);
+  const largeIconSize = useResponsiveIconSize(20);
+  const xlIconSize = useResponsiveIconSize(24);
   
   // Generate dropdown state
   const [showGenerateDropdown, setShowGenerateDropdown] = useState(false);
@@ -456,17 +547,32 @@ const ColorPickerApp = () => {
       // 1. Viewport is narrow (mobile/tablet)
       // 2. User has zoomed in significantly (zoom > 1.7 to match palette shift)
       // 3. Viewport height is constrained (zoomed in vertically)
+      // 4. High DPI displays with small viewport
       const shouldUseCompact = 
         viewportWidth < 1024 || 
         zoomLevel > 1.8 || 
-        viewportHeight < 500;
+        viewportHeight < 500 ||
+        (zoomLevel > 1.5 && viewportWidth < 1400);
       
       setUseCompactLayout(shouldUseCompact);
     };
 
     checkLayout();
     window.addEventListener('resize', checkLayout);
-    return () => window.removeEventListener('resize', checkLayout);
+    
+    // Listen for zoom changes on HiDPI displays
+    if (window.matchMedia) {
+      const mediaQuery = window.matchMedia('(resolution: 1dppx)');
+      mediaQuery.addEventListener('change', checkLayout);
+    }
+    
+    return () => {
+      window.removeEventListener('resize', checkLayout);
+      if (window.matchMedia) {
+        const mediaQuery = window.matchMedia('(resolution: 1dppx)');
+        mediaQuery.removeEventListener('change', checkLayout);
+      }
+    };
   }, []);
 
   // Handle clicking outside dropdown to close it
@@ -1035,9 +1141,11 @@ const ColorPickerApp = () => {
     if (!isResizing) return;
     
     const deltaX = e.clientX - resizeStartX;
-    const newWidth = Math.max(300, Math.min(800, resizeStartWidth + deltaX)); // Min 300px, max 800px
+    // Increase minimum width for smaller screens to prevent overlap
+    const minWidth = useCompactLayout ? 400 : 300;
+    const newWidth = Math.max(minWidth, Math.min(800, resizeStartWidth + deltaX));
     setPickerWidth(newWidth);
-  }, [isResizing, resizeStartX, resizeStartWidth]);
+  }, [isResizing, resizeStartX, resizeStartWidth, useCompactLayout]);
 
   const handleResizeEnd = useCallback(() => {
     setIsResizing(false);
@@ -1252,6 +1360,7 @@ const ColorPickerApp = () => {
                 : pickerWidth 
                   ? `${pickerWidth}px` 
                   : 'auto', 
+              minWidth: useCompactLayout ? '400px' : '300px',
               flexShrink: 0 
             }}
             className={`relative overflow-visible ${isResizing ? 'resizing' : ''} ${paletteSelectionMode ? 'blur-sm opacity-50' : ''}`}
@@ -1303,7 +1412,7 @@ const ColorPickerApp = () => {
                         style={{ justifyContent: 'flex-start', textAlign: 'left',  }}
                       >
                         {currentEditingName || <span className="italic text-neutral-400">(No Name)</span>}
-                        <Pencil size={20} className="ml-1 text-amber-400 opacity-70 group-hover:opacity-100" />
+                        <Pencil size={largeIconSize} className="ml-1 text-amber-400 opacity-70 group-hover:opacity-100" />
                       </div>
                     )}
                   </>
@@ -1313,53 +1422,57 @@ const ColorPickerApp = () => {
               <div className="flex flex-col gap-3 w-full">
                 {/* Color picker layout - changes based on compact mode */}
                 {useCompactLayout ? (
-                  /* Compact layout: swatch, inputs, and color square in one row */
-                  <div className="flex flex-row items-stretch gap-3 w-full" style={{height: '120px'}}>
-                    <div
-                      className="color-swatch color-swatch-large flex-shrink-0"
-                      style={{ backgroundColor: currentColor, width: '120px', height: '120px', minWidth: '120px', minHeight: '120px' }}
-                    />
-                    <div className="flex flex-col gap-1 flex-shrink-0 justify-center" style={{width: '120px', minWidth: '120px'}}>
-                      <input
-                        type="text"
-                        value={currentColor}
-                        onChange={(e) => setCurrentColor(e.target.value)}
-                        className="input-hex w-full"
-                        placeholder="#000000"
-                        style={{fontSize: '1rem'}}
+                  /* Compact layout: swatch and inputs in one row, color square below */
+                  <div className="space-y-3 w-full">
+                    <div className="flex flex-row items-stretch gap-3 w-full" style={{height: '120px'}}>
+                      <div
+                        className="color-swatch color-swatch-large flex-shrink-0"
+                        style={{ backgroundColor: currentColor, width: '120px', height: '120px', minWidth: '120px', minHeight: '120px' }}
                       />
-                      <input
-                        type="text"
-                        value={`${rgbValues.r}, ${rgbValues.g}, ${rgbValues.b}`}
-                        onChange={(e) => {
-                          const parts = e.target.value.split(',').map(s => s.trim());
-                          if (parts.length === 3) {
-                            handleRgbChange('r', parts[0]);
-                            handleRgbChange('g', parts[1]);
-                            handleRgbChange('b', parts[2]);
-                          }
-                        }}
-                        className="input-hex w-full"
-                        placeholder="255, 255, 255"
-                        style={{fontSize: '1rem'}}
-                      />
-                      <input
-                        type="text"
-                        value={`${normalizedRgbValues.r.toFixed(3)}, ${normalizedRgbValues.g.toFixed(3)}, ${normalizedRgbValues.b.toFixed(3)}`}
-                        onChange={(e) => {
-                          const parts = e.target.value.split(',').map(s => s.trim());
-                          if (parts.length === 3) {
-                            handleNormalizedRgbChange('r', parts[0]);
-                            handleNormalizedRgbChange('g', parts[1]);
-                            handleNormalizedRgbChange('b', parts[2]);
-                          }
-                        }}
-                        className="input-hex w-full"
-                        placeholder="1.000, 1.000, 1.000"
-                        style={{fontSize: '1rem'}}
-                      />
+                      <div className="flex flex-col gap-1 flex-shrink-0 justify-center" style={{width: '120px', minWidth: '120px'}}>
+                        <input
+                          type="text"
+                          value={currentColor}
+                          onChange={(e) => setCurrentColor(e.target.value)}
+                          className="input-hex w-full"
+                          placeholder="#000000"
+                          style={{fontSize: '1rem'}}
+                        />
+                        <input
+                          type="text"
+                          value={`${rgbValues.r}, ${rgbValues.g}, ${rgbValues.b}`}
+                          onChange={(e) => {
+                            const parts = e.target.value.split(',').map(s => s.trim());
+                            if (parts.length === 3) {
+                              handleRgbChange('r', parts[0]);
+                              handleRgbChange('g', parts[1]);
+                              handleRgbChange('b', parts[2]);
+                            }
+                          }}
+                          className="input-hex w-full"
+                          placeholder="255, 255, 255"
+                          style={{fontSize: '1rem'}}
+                        />
+                        <input
+                          type="text"
+                          value={`${normalizedRgbValues.r.toFixed(3)}, ${normalizedRgbValues.g.toFixed(3)}, ${normalizedRgbValues.b.toFixed(3)}`}
+                          onChange={(e) => {
+                            const parts = e.target.value.split(',').map(s => s.trim());
+                            if (parts.length === 3) {
+                              handleNormalizedRgbChange('r', parts[0]);
+                              handleNormalizedRgbChange('g', parts[1]);
+                              handleNormalizedRgbChange('b', parts[2]);
+                            }
+                          }}
+                          className="input-hex w-full"
+                          placeholder="1.000, 1.000, 1.000"
+                          style={{fontSize: '1rem'}}
+                        />
+                      </div>
                     </div>
-                    <div className="flex-1 flex items-center justify-center min-w-0" style={{minWidth: '120px'}}>
+                    
+                    {/* Color square in its own row to prevent overlap */}
+                    <div className="w-full" style={{height: '120px'}}>
                       <ColorSquare
                         hue={(() => { const hsl = hexToHsl(currentColor); return hsl ? hsl.h : 0; })()}
                         size={120}
@@ -1445,7 +1558,7 @@ const ColorPickerApp = () => {
                     onClick={cancelColorEdit}
                     className="btn-secondary w-full flex items-center justify-center gap-2"
                   >
-                    <X size={16} />
+                    <X size={mediumIconSize} />
                     <span>Cancel</span>
                   </button>
                 </div>
@@ -1468,14 +1581,14 @@ const ColorPickerApp = () => {
                       onClick={cancelPaletteModification}
                       className="flex-1 px-3 py-2 bg-neutral-600 hover:bg-neutral-700 rounded text-white transition-colors text-sm flex items-center justify-center gap-2"
                     >
-                      <X size={16} />
+                      <X size={mediumIconSize} />
                       <span>Cancel</span>
                     </button>
                     <button
                       onClick={saveModifiedPalette}
                       className="flex-1 px-3 py-2 bg-green-600 hover:bg-green-700 rounded text-white transition-colors text-sm flex items-center justify-center gap-2"
                     >
-                      <Save size={16} />
+                      <Save size={mediumIconSize} />
                       <span>Save as New Palette</span>
                     </button>
                   </div>
@@ -1524,34 +1637,6 @@ const ColorPickerApp = () => {
                   <h2 className="text-lg mb-4 sm:text-xl font-semibold text-neutral-100">
                     Your Palettes
                   </h2>
-                  <div className="flex flex-wrap gap-2">
-                    {showNewPaletteInput ? (
-                      <div className="flex flex-wrap gap-2">
-                        <input
-                          type="text"
-                          value={newPaletteName}
-                          onChange={(e) => setNewPaletteName(e.target.value)}
-                          placeholder="Palette name"
-                          className="bg-neutral-800 border border-neutral-600 rounded px-3 py-2 text-neutral-100 text-sm"
-                          onKeyPress={(e) => e.key === "Enter" && createPalette()}
-                        />
-                        <button
-                          onClick={createPalette}
-                          className="bg-green-600 hover:bg-green-700 px-3 py-2 rounded text-white transition-colors text-sm"
-                        >
-                          Create
-                        </button>
-                        <button
-                          onClick={() => setShowNewPaletteInput(false)}
-                          className="bg-neutral-600 hover:bg-neutral-700 px-3 py-2 rounded text-white transition-colors text-sm"
-                        >
-                          Cancel
-                        </button>
-                      </div>
-                    ) : (
-                      <></>
-                    )}
-                  </div>
                 </div>
               </div>
             </div>
@@ -1587,7 +1672,7 @@ const ColorPickerApp = () => {
                     className="absolute -top-2 -right-2 bg-red-600 hover:bg-red-700 rounded-full w-6 h-6 flex items-center justify-center transition-all duration-200 hover:scale-110 z-10"
                     title={`Delete palette "${palette.name}"`}
                   >
-                    <X size={14} className="text-white" />
+                    <X size={smallIconSize} className="text-white" />
                   </button>
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
                     <div className="flex items-center gap-2">
@@ -1597,10 +1682,10 @@ const ColorPickerApp = () => {
                           className="text-neutral-400 hover:text-neutral-100 transition-colors"
                           title={expandedPalettes.has(palette.id) ? "Collapse palette" : "Expand palette"}
                         >
-                          <ChevronRight 
-                            size={16} 
-                            className={`transition-transform ${expandedPalettes.has(palette.id) ? 'rotate-90' : ''}`} 
-                          />
+                                                  <ChevronRight 
+                          size={mediumIconSize} 
+                          className={`transition-transform ${expandedPalettes.has(palette.id) ? 'rotate-90' : ''}`} 
+                        />
                         </button>
                       )}
                       <h3 className="text-base sm:text-lg font-medium text-neutral-100">
@@ -1704,7 +1789,7 @@ const ColorPickerApp = () => {
                               boxShadow: '0 2px 4px rgba(0, 0, 0, 0.3)'
                             }}
                           >
-                            <X size={12} className="text-white" />
+                            <X size={smallIconSize} className="text-white" />
                           </button>
                         )}
                         </div>
@@ -1731,7 +1816,7 @@ const ColorPickerApp = () => {
                         }}
                         title="Add color to palette"
                       >
-                        <Plus size={20} className="text-neutral-400" />
+                        <Plus size={largeIconSize} className="text-neutral-400" />
                       </button>
                     )}
                     
@@ -1747,21 +1832,55 @@ const ColorPickerApp = () => {
                 </div>
               ))}
               
-              {/* New Palette Frame */}
-              <div className={`bg-neutral-800 rounded-lg p-3 sm:p-4 relative ${paletteModificationMode ? 'blur-sm opacity-50' : ''}`}>
-                <button
-                  onClick={() => setShowNewPaletteInput(true)}
-                  className="w-full h-24 sm:h-32 border-2 border-dashed border-neutral-600 hover:border-neutral-400 bg-neutral-800 hover:bg-neutral-700 rounded-lg flex items-center justify-center transition-all group"
-                  title="Create new palette"
-                >
-                  <div className="flex flex-col items-center space-y-2">
-                    <Plus size={24} className="text-neutral-400 group-hover:text-neutral-300 transition-colors" />
-                    <span className="text-sm text-neutral-400 group-hover:text-neutral-300 transition-colors font-medium">
-                      New Palette
-                    </span>
+              {/* Palette Creation Input - appears below last palette */}
+              {showNewPaletteInput && (
+                <div className={`bg-neutral-700 rounded-lg p-3 sm:p-4 relative transition-all duration-200 border-2 border-purple-500/30 ${paletteModificationMode ? 'blur-sm opacity-50' : ''}`}>
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                    <input
+                      type="text"
+                      value={newPaletteName}
+                      onChange={(e) => setNewPaletteName(e.target.value)}
+                      placeholder="Enter palette name..."
+                      className="flex-1 bg-neutral-800 border border-neutral-600 rounded px-3 py-2 text-neutral-100 text-sm focus:border-purple-500 focus:outline-none"
+                      onKeyPress={(e) => e.key === "Enter" && createPalette()}
+                      autoFocus
+                    />
+                    <div className="flex gap-2">
+                      <button
+                        onClick={createPalette}
+                        className="px-4 py-2 rounded text-white transition-all duration-200 text-sm font-medium color-cycle-border"
+                        disabled={!newPaletteName.trim()}
+                      >
+                        Create Palette
+                      </button>
+                      <button
+                        onClick={() => setShowNewPaletteInput(false)}
+                        className="px-4 py-2 bg-neutral-500 hover:bg-neutral-600 rounded text-white transition-colors text-sm"
+                      >
+                        Cancel
+                      </button>
+                    </div>
                   </div>
-                </button>
-              </div>
+                </div>
+              )}
+              
+              {/* New Palette Frame */}
+              {!showNewPaletteInput && (
+                <div className={`bg-neutral-800 rounded-lg p-3 sm:p-4 relative ${paletteModificationMode ? 'blur-sm opacity-50' : ''}`}>
+                  <button
+                    onClick={() => setShowNewPaletteInput(true)}
+                    className="w-full h-24 sm:h-32 border-2 border-dashed border-neutral-600 hover:border-neutral-400 bg-neutral-800 hover:bg-neutral-700 rounded-lg flex items-center justify-center transition-all group"
+                    title="Create new palette"
+                  >
+                    <div className="flex flex-col items-center space-y-2">
+                      <Plus size={xlIconSize} className="text-neutral-400 group-hover:text-neutral-300 transition-colors" />
+                      <span className="text-sm text-neutral-400 group-hover:text-neutral-300 transition-colors font-medium">
+                        New Palette
+                      </span>
+                    </div>
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -1779,7 +1898,7 @@ const ColorPickerApp = () => {
                 onClick={handleDeleteCancel}
                 className="text-neutral-400 hover:text-neutral-100"
               >
-                <X size={24} />
+                <X size={xlIconSize} />
               </button>
             </div>
             
@@ -1810,16 +1929,19 @@ const ColorPickerApp = () => {
         <div className="relative" ref={generateDropdownRef}>
           <button
             onClick={handleMenuToggle}
-            className="w-14 h-14 bg-purple-600 hover:bg-purple-700 rounded-full shadow-lg flex items-center justify-center transition-all duration-200 hover:scale-110"
+            className="w-14 h-14 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110"
+            style={{
+              animation: 'generateButtonFluid 20s ease-in-out infinite'
+            }}
             title="Generate colors"
           >
-            <Sparkles size={24} className="text-white" />
+            <Sparkles size={xlIconSize} className="text-white" />
           </button>
           
           {showGenerateDropdown && (
             <div className="absolute bottom-full right-0 mb-4 z-50">
               {/* Thick rounded semi-transparent line - centered on icon */}
-              <div className={`w-3 h-64 bg-purple-500/30 rounded-full mb-4 ${menuAnimationState === 'opening' ? 'menu-line-growing' : ''}`} 
+              <div className={`w-3 h-64 rounded-full mb-4 menu-vertical-bar ${menuAnimationState === 'opening' ? 'menu-line-growing' : ''}`} 
                    style={{ 
                      position: 'absolute',
                      bottom: '0',
