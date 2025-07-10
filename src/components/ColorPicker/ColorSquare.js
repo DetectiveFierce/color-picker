@@ -46,40 +46,81 @@ const ColorSquare = ({ hue = 0, color, onChange }) => {
 
   // Resize canvas to match displayed size and device pixel ratio
   useEffect(() => {
+    let resizeTimeout;
+    
     const handleResize = () => {
       if (!containerRef.current || !canvasRef.current) return;
-      const rect = containerRef.current.getBoundingClientRect();
       
-      // Calculate available width within the container
-      const availableWidth = Math.max(120, rect.width); // Minimum 120px width
-      const height = 120; // Fixed height as requested
+      // Clear any pending resize timeout
+      if (resizeTimeout) {
+        clearTimeout(resizeTimeout);
+      }
       
-      setCanvasDims({ width: availableWidth, height });
-      
-      // Set canvas size accounting for device pixel ratio
-      canvasRef.current.width = availableWidth * dpr;
-      canvasRef.current.height = height * dpr;
-      canvasRef.current.style.width = `${availableWidth}px`;
-      canvasRef.current.style.height = `${height}px`;
-      
-      // Set canvas context scale for HiDPI
-      const ctx = canvasRef.current.getContext('2d');
-      ctx.scale(dpr, dpr);
+      // Debounce resize events to prevent ResizeObserver loop errors
+      resizeTimeout = setTimeout(() => {
+        const rect = containerRef.current.getBoundingClientRect();
+        
+        // Calculate available width within the container
+        const availableWidth = Math.max(120, rect.width); // Minimum 120px width
+        const height = 120; // Fixed height as requested
+        
+        setCanvasDims({ width: availableWidth, height });
+        
+        // Set canvas size accounting for device pixel ratio
+        canvasRef.current.width = availableWidth * dpr;
+        canvasRef.current.height = height * dpr;
+        canvasRef.current.style.width = `${availableWidth}px`;
+        canvasRef.current.style.height = `${height}px`;
+        
+        // Set canvas context scale for HiDPI
+        const ctx = canvasRef.current.getContext('2d');
+        ctx.scale(dpr, dpr);
+      }, 16); // ~60fps debounce
     };
     
+    // Initial setup - draw immediately with default dimensions
+    if (canvasRef.current) {
+      const defaultWidth = 320;
+      const defaultHeight = 120;
+      
+      canvasRef.current.width = defaultWidth * dpr;
+      canvasRef.current.height = defaultHeight * dpr;
+      canvasRef.current.style.width = `${defaultWidth}px`;
+      canvasRef.current.style.height = `${defaultHeight}px`;
+      
+      const ctx = canvasRef.current.getContext('2d');
+      ctx.scale(dpr, dpr);
+      
+      setCanvasDims({ width: defaultWidth, height: defaultHeight });
+    }
+    
+    // Then handle resize
     handleResize();
     
-    // Use ResizeObserver for more responsive resizing
+    // Use ResizeObserver for more responsive resizing with error handling
     let resizeObserver;
     if (window.ResizeObserver && containerRef.current) {
-      resizeObserver = new ResizeObserver(handleResize);
-      resizeObserver.observe(containerRef.current);
+      try {
+        resizeObserver = new ResizeObserver((entries) => {
+          // Prevent ResizeObserver loop errors by using requestAnimationFrame
+          window.requestAnimationFrame(() => {
+            if (!Array.isArray(entries) || entries.length === 0) return;
+            handleResize();
+          });
+        });
+        resizeObserver.observe(containerRef.current);
+      } catch (error) {
+        console.warn('ResizeObserver not supported, falling back to window resize');
+      }
     }
     
     // Fallback to window resize listener
     window.addEventListener('resize', handleResize);
     
     return () => {
+      if (resizeTimeout) {
+        clearTimeout(resizeTimeout);
+      }
       if (resizeObserver) {
         resizeObserver.disconnect();
       }
@@ -88,19 +129,25 @@ const ColorSquare = ({ hue = 0, color, onChange }) => {
   }, [dpr]);
 
   // Draw the color rectangle and selection circle
-  const drawAll = useCallback(() => {
+  useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     
-    const { width, height } = canvasDims;
+    // Use default dimensions if not set yet
+    const width = canvasDims.width || 320;
+    const height = canvasDims.height || 120;
     const ctx = canvas.getContext('2d');
     
-    // Clear the canvas
+    // Clear the canvas and fill with solid background
     ctx.clearRect(0, 0, width * dpr, height * dpr);
     
     // Reset transform and scale for HiDPI
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.scale(dpr, dpr);
+    
+    // Fill entire canvas with solid background to prevent transparency
+    ctx.fillStyle = '#404040';
+    ctx.fillRect(0, 0, width, height);
     
     // Precompute top edge (white to hue)
     const topEdge = [];
@@ -152,11 +199,81 @@ const ColorSquare = ({ hue = 0, color, onChange }) => {
       
       ctx.restore();
     }
-  }, [hue, color, canvasDims, dpr]);
+  }, [hue, color, canvasDims.width, canvasDims.height, dpr]);
 
+  // Force initial draw when component mounts
   useEffect(() => {
-    drawAll();
-  }, [drawAll, canvasDims, dpr]);
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    
+    // Set up canvas immediately with default dimensions
+    const defaultWidth = 320;
+    const defaultHeight = 120;
+    
+    canvas.width = defaultWidth * dpr;
+    canvas.height = defaultHeight * dpr;
+    canvas.style.width = `${defaultWidth}px`;
+    canvas.style.height = `${defaultHeight}px`;
+    
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+    
+    // Draw immediately
+    ctx.clearRect(0, 0, defaultWidth * dpr, defaultHeight * dpr);
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.scale(dpr, dpr);
+    
+    // Fill with solid background
+    ctx.fillStyle = '#404040';
+    ctx.fillRect(0, 0, defaultWidth, defaultHeight);
+    
+    // Draw the color gradient
+    const topEdge = [];
+    for (let x = 0; x < defaultWidth; x++) {
+      const t = x / (defaultWidth - 1);
+      const hueColor = hexToRgb(hslToHex(hue, 100, 50));
+      const r = Math.round((1 - t) * 255 + t * hueColor.r);
+      const g = Math.round((1 - t) * 255 + t * hueColor.g);
+      const b = Math.round((1 - t) * 255 + t * hueColor.b);
+      topEdge.push({ r, g, b });
+    }
+    
+    for (let y = 0; y < defaultHeight; y++) {
+      const l = 1 - y / (defaultHeight - 1);
+      for (let x = 0; x < defaultWidth; x++) {
+        const r = Math.round((1 - l) * 0 + l * topEdge[x].r);
+        const g = Math.round((1 - l) * 0 + l * topEdge[x].g);
+        const b = Math.round((1 - l) * 0 + l * topEdge[x].b);
+        ctx.fillStyle = rgbToHex(r, g, b);
+        ctx.fillRect(x, y, 1, 1);
+      }
+    }
+    
+    // Draw selection circle
+    const hsl = hexToHsl(color);
+    if (hsl) {
+      const x = (hsl.s / 100) * (defaultWidth - 1);
+      const y = (1 - hsl.l / 100) * (defaultHeight - 1);
+      
+      ctx.save();
+      ctx.beginPath();
+      
+      const circleRadius = Math.max(6, 8 / dpr);
+      ctx.arc(x, y, circleRadius, 0, 2 * Math.PI);
+      
+      ctx.lineWidth = Math.max(1, 2 / dpr);
+      ctx.strokeStyle = getContrastColor(color);
+      ctx.stroke();
+      
+      ctx.beginPath();
+      ctx.arc(x, y, circleRadius - Math.max(1, 2 / dpr), 0, 2 * Math.PI);
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = Math.max(0.5, 1 / dpr);
+      ctx.stroke();
+      
+      ctx.restore();
+    }
+  }, []); // Only run once on mount
 
   // Handle mouse/touch events for picking a color
   const handlePointer = (e) => {
@@ -238,6 +355,7 @@ const ColorSquare = ({ hue = 0, color, onChange }) => {
           maxWidth: '100%',
           cursor: 'crosshair',
           touchAction: 'none', // Prevent default touch behaviors
+          backgroundColor: '#404040', // Ensure canvas element is opaque
           /* Ensure crisp rendering on HiDPI */
           imageRendering: '-webkit-optimize-contrast',
           imageRendering: 'crisp-edges'

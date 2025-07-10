@@ -26,7 +26,7 @@ const ColorSliders = ({ color, onChange, modificationMode = false }) => {
     if (hsl) {
       setEditableHsl({ h: Math.round(hsl.h), s: Math.round(hsl.s), l: Math.round(hsl.l) });
     }
-  }, [color, rgb, hsl]);
+  }, [color]);
 
   if (!rgb || !hsl) return null;
 
