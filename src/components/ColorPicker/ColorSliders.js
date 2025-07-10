@@ -1,17 +1,32 @@
 // ColorSliders.js
 // Renders RGB and HSL sliders for fine-tuning the selected color.
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { hexToRgb, hexToHsl, rgbToHex, hslToHex } from '../utils/colorUtils';
 
 /**
  * ColorSliders
  * @param {string} color - The current color (hex)
  * @param {function} onChange - Callback when the color changes
+ * @param {boolean} modificationMode - Whether we're in palette modification mode
  */
-const ColorSliders = ({ color, onChange }) => {
+const ColorSliders = ({ color, onChange, modificationMode = false }) => {
   const rgb = hexToRgb(color);
   const hsl = hexToHsl(color);
+
+  // State for editable values
+  const [editableRgb, setEditableRgb] = useState({ r: 0, g: 0, b: 0 });
+  const [editableHsl, setEditableHsl] = useState({ h: 0, s: 0, l: 0 });
+
+  // Update editable values when color changes
+  useEffect(() => {
+    if (rgb) {
+      setEditableRgb({ r: rgb.r, g: rgb.g, b: rgb.b });
+    }
+    if (hsl) {
+      setEditableHsl({ h: Math.round(hsl.h), s: Math.round(hsl.s), l: Math.round(hsl.l) });
+    }
+  }, [color, rgb, hsl]);
 
   if (!rgb || !hsl) return null;
 
@@ -25,6 +40,30 @@ const ColorSliders = ({ color, onChange }) => {
   const updateHsl = (component, value) => {
     const newHsl = { ...hsl, [component]: value };
     onChange(hslToHex(newHsl.h, newHsl.s, newHsl.l));
+  };
+
+  // Handle RGB input changes
+  const handleRgbInputChange = (component, value) => {
+    const numValue = parseInt(value) || 0;
+    const clampedValue = Math.max(0, Math.min(255, numValue));
+    
+    setEditableRgb(prev => ({ ...prev, [component]: clampedValue }));
+    updateRgb(component, clampedValue);
+  };
+
+  // Handle HSL input changes
+  const handleHslInputChange = (component, value) => {
+    let numValue = parseInt(value) || 0;
+    
+    // Clamp based on component
+    if (component === 'h') {
+      numValue = Math.max(0, Math.min(360, numValue));
+    } else {
+      numValue = Math.max(0, Math.min(100, numValue));
+    }
+    
+    setEditableHsl(prev => ({ ...prev, [component]: numValue }));
+    updateHsl(component, numValue);
   };
 
   // Generate gradient backgrounds for each slider
@@ -59,7 +98,7 @@ const ColorSliders = ({ color, onChange }) => {
   };
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2">
       {/* RGB Sliders */}
       <div className="space-y-2">
         <label className="text-sm font-medium text-neutral-200">RGB</label>
@@ -75,7 +114,13 @@ const ColorSliders = ({ color, onChange }) => {
               className="color-slider flex-1"
               style={{ background: getRgbGradient('r') }}
             />
-            <span className="slider-value">{rgb.r}</span>
+            <input
+              type="text"
+              value={editableRgb.r}
+              onChange={(e) => handleRgbInputChange('r', e.target.value)}
+              className="slider-value-input"
+              style={{ width: '40px', textAlign: 'center' }}
+            />
           </div>
           <div className="flex items-center space-x-2">
             <span className="slider-label green">G</span>
@@ -88,7 +133,13 @@ const ColorSliders = ({ color, onChange }) => {
               className="color-slider flex-1"
               style={{ background: getRgbGradient('g') }}
             />
-            <span className="slider-value">{rgb.g}</span>
+            <input
+              type="text"
+              value={editableRgb.g}
+              onChange={(e) => handleRgbInputChange('g', e.target.value)}
+              className="slider-value-input"
+              style={{ width: '40px', textAlign: 'center' }}
+            />
           </div>
           <div className="flex items-center space-x-2">
             <span className="slider-label blue">B</span>
@@ -101,7 +152,13 @@ const ColorSliders = ({ color, onChange }) => {
               className="color-slider flex-1"
               style={{ background: getRgbGradient('b') }}
             />
-            <span className="slider-value">{rgb.b}</span>
+            <input
+              type="text"
+              value={editableRgb.b}
+              onChange={(e) => handleRgbInputChange('b', e.target.value)}
+              className="slider-value-input"
+              style={{ width: '40px', textAlign: 'center' }}
+            />
           </div>
         </div>
       </div>
@@ -120,7 +177,13 @@ const ColorSliders = ({ color, onChange }) => {
               className="color-slider flex-1"
               style={{ background: getHueGradient() }}
             />
-            <span className="slider-value">{Math.round(hsl.h)}</span>
+            <input
+              type="text"
+              value={editableHsl.h}
+              onChange={(e) => handleHslInputChange('h', e.target.value)}
+              className="slider-value-input"
+              style={{ width: '40px', textAlign: 'center' }}
+            />
           </div>
           <div className="flex items-center space-x-2">
             <span className="slider-label purple">S</span>
@@ -133,7 +196,13 @@ const ColorSliders = ({ color, onChange }) => {
               className="color-slider flex-1"
               style={{ background: getSaturationGradient() }}
             />
-            <span className="slider-value">{Math.round(hsl.s)}</span>
+            <input
+              type="text"
+              value={editableHsl.s}
+              onChange={(e) => handleHslInputChange('s', e.target.value)}
+              className="slider-value-input"
+              style={{ width: '40px', textAlign: 'center' }}
+            />
           </div>
           <div className="flex items-center space-x-2">
             <span className="slider-label orange">L</span>
@@ -146,7 +215,13 @@ const ColorSliders = ({ color, onChange }) => {
               className="color-slider flex-1"
               style={{ background: getLightnessGradient() }}
             />
-            <span className="slider-value">{Math.round(hsl.l)}</span>
+            <input
+              type="text"
+              value={editableHsl.l}
+              onChange={(e) => handleHslInputChange('l', e.target.value)}
+              className="slider-value-input"
+              style={{ width: '40px', textAlign: 'center' }}
+            />
           </div>
         </div>
       </div>

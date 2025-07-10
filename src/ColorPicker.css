@@ -103,22 +103,107 @@
 }
 
 .color-swatch-large {
-    width: 160px;
-    height: 160px;
+    width: 120px;
+    height: 120px;
+    min-width: 120px;
     border-radius: 12px;
     border: 0px solid #fff;
     box-shadow: 0 6px 16px rgba(0,0,0,0.4);
     transition: width 0.2s, height 0.2s;
 }
 
+@media (min-width: 640px) {
+    .color-swatch-large {
+        width: 160px;
+        height: 160px;
+        min-width: 160px;
+    }
+}
+
 .color-square-canvas {
-    width: 390px;
-    height: 160px;
+    width: 100%;
+    height: 100%;
     display: block;
     border-radius: 8px;
     border: 1px solid #525252;
     box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-    margin-top: 8px;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* Responsive layout adjustments for zoomed/constrained viewports */
+@media (max-width: 1024px) {
+    .color-picker-compact-layout .color-square-canvas {
+        margin-top: 0;
+    }
+    
+    .color-picker-compact-layout .input-hex {
+        padding: 4px 8px;
+        font-size: 11px;
+    }
+    
+    .color-picker-compact-layout .color-swatch-large {
+        width: 80px;
+        height: 80px;
+        min-width: 80px;
+    }
+}
+
+@media (max-width: 768px) {
+    .color-picker-compact-layout .color-square-canvas {
+        /* Keep existing styles but remove aspect-ratio constraints */
+    }
+    
+    .color-picker-compact-layout .input-hex {
+        padding: 3px 6px;
+        font-size: 10px;
+    }
+    
+    .color-picker-compact-layout .color-swatch-large {
+        width: 60px;
+        height: 60px;
+        min-width: 60px;
+    }
+}
+
+/* Compact layout specific styles */
+.color-picker-compact-layout .color-square-canvas {
+    margin-top: 0;
+    border-radius: 6px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    flex-shrink: 1;
+    height: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.color-picker-compact-layout .input-hex {
+    padding: 3px 6px;
+    font-size: 11px;
+    border-radius: 3px;
+    min-width: 150px;
+}
+
+.color-picker-compact-layout .color-swatch-large {
+    border-radius: 6px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+
+/* Ensure proper spacing in compact layout */
+.color-picker-compact-layout .flex.flex-row {
+    gap: 8px;
+    align-items: flex-start;
+}
+
+/* Ensure color square container respects resizable menu bounds */
+.color-picker-compact-layout .flex-1 {
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+}
+
+.color-picker-compact-layout .flex-shrink-0 {
+    flex-shrink: 0;
 }
 
 /* Button styles */
@@ -218,16 +303,26 @@
     background: #262626;
     border: 1px solid #525252;
     border-radius: 4px;
-    padding: 8px 12px;
+    padding: 6px 10px;
     color: #f5f5f5;
-    width: 112px;
+    width: 100%;
     font-family: monospace;
-    font-size: 14px;
+    font-size: 12px;
+    box-sizing: border-box;
+    outline: none;
+    transition: border-color 0.2s ease;
 }
 
 .input-hex:focus {
-    outline: none;
     border-color: #d97706;
+    box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.2);
+}
+
+@media (min-width: 640px) {
+    .input-hex {
+        padding: 8px 12px;
+        font-size: 14px;
+    }
 }
 
 .input-palette-name {
@@ -275,8 +370,40 @@
 }
 
 .slider-value {
-    color: #d1d5db;
+    color: #d6d6d6;
     width: 32px;
     font-size: 14px;
     font-family: monospace;
+}
+
+/* Color name display in picker */
+.color-name-display {
+    font-size: 2rem;         /* Adjust font size here */
+    font-weight: 700;        /* Bold */
+    text-align: center;
+    cursor: pointer;
+    padding: 0.25em 0;       /* Adjust vertical/horizontal padding here */
+    color: #d6d6d6;          /* Amber-400, adjust color here */
+    background: none;
+    border: none;
+    outline: none;
+    transition: text-decoration 0.2s, color 0.2s;
+    text-decoration: underline dotted #C2982B 2px; /* Amber-600 underline */
+    border-radius: 4px;
+}
+.color-name-display:hover, .color-name-display:focus {
+    text-decoration: underline solid #C2982B 2px;
+    color: #707070; /* Slightly darker on hover, adjust here */
+}
+
+/* Drag and drop styles */
+.color-chip-dragging {
+    opacity: 0.5;
+    transform: rotate(5deg);
+}
+
+.color-chip-drop-target {
+    border-color: #fbbf24 !important; /* amber-400 */
+    box-shadow: 0 0 10px rgba(251, 191, 36, 0.5) !important;
+    transform: scale(1.05);
 }
